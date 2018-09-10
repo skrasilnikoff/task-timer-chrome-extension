@@ -18,7 +18,7 @@
 
 <style scoped>
   #app {
-    padding: 15px;
-    width: 461px;
+    padding: 0;
+    width: 622px;
   }
 </style>

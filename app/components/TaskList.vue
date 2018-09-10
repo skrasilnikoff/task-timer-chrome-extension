@@ -1,93 +1,90 @@
 <template>
   <div class="task-list">
-    <div class="list">
-      <task-item v-for="task in taskList"
-                 :task="task"
-                 :key="task.id"
-                 @start-task="onStartTask"
-                 @pause-task="onPauseTask"
-                 @remove-task="onRemoveTask"
-      />
-    </div>
-    <hr>
+
+    <create-new-task @new-task-name="onAddTask"/>
+
     <br/>
-    <div class="container">
-      <create-new-task @new-task-name="onAddTask"/>
+
+    <div class="list">
+      <div class="container">
+        <task-item v-for="task in taskList"
+                   v-bind:class="{ active : task.id == currentTask.id }"
+                   :task="task"
+                   :key="task.id"
+                   @start-task="onStartTask"
+                   @pause-task="onPauseTask"
+                   @remove-task="onRemoveTask"
+                   @reset-task="onResetTask"
+        />
+      </div>
     </div>
+
   </div>
 </template>
 
 <script>
-  import TaskItem from './TaskItem.vue';
-  import CreateNewTask from './CreateNewTask.vue';
-  import _clone from 'lodash/clone';
+  import TaskItem from "./TaskItem.vue";
+  import CreateNewTask from "./CreateNewTask.vue";
+  import _clone from "lodash/clone";
 
   let bpage = chrome.extension.getBackgroundPage();
   let Storage = bpage.Storage;
 
-  let nextTaskId = 1;
+  let lastTaskId = 1;
   let Counter = null;
-
 
   export default {
     components: {
-      TaskItem, CreateNewTask
+      TaskItem,
+      CreateNewTask
     },
 
     data() {
       return {
         taskList: [],
         currentTask: {id: 0}
-      }
+      };
     },
 
     created: function () {
       Counter = bpage.Counter;
       this.taskList = Storage.taskList;
       this.currentTask = Storage.currentTask;
-      nextTaskId = Storage.nextTaskId;
+      lastTaskId = (Storage.lastTaskId) ? Storage.lastTaskId : 1;
     },
 
     methods: {
       onAddTask(taskName) {
         let self = this;
 
-        self.taskList.push(
-          {
-            id: nextTaskId++,
-            name: taskName,
-            time: 0
-          }
-        );
+        self.taskList.push({
+          id: ++lastTaskId,
+          name: taskName,
+          time: 0
+        });
         self._saveTaskList();
       },
 
       onStartTask(task) {
         var self = this;
 
-        // state = 0
+        // state == 0
         if (!Counter.state) {
-
           self._startCount(task);
-
         } else {
-
           if (self.currentTask.id !== task.id) {
-
             Counter.pauseCount();
             self.currentTask.time = _clone(Counter.getCount());
             self._saveTaskList();
             Counter.resetCount();
 
             self._startCount(task);
-
           }
         }
       },
 
       _startCount(task) {
         let self = this;
-
         Counter.setCount(_clone(task.time));
 
         self.currentTask = task;
@@ -102,16 +99,12 @@
       onPauseTask(task) {
         let self = this;
 
-        console.log('Counter.state', Counter.state);
-        console.log('self.currentTask.id', self.currentTask.id);
-
         if (Counter.state && self.currentTask.id === task.id) {
           Counter.pauseCount();
-          self.currentTask.time = _clone(Counter.getCount());
+          self.currentTask = {};//.time = _clone(Counter.getCount());
           self._saveTaskList();
           Counter.resetCount();
         }
-
       },
 
       onRemoveTask(task) {
@@ -126,9 +119,8 @@
         for (let i = 0; i < self.taskList.length; i++) {
           let _id = self.taskList[i].id;
           if (_id === task.id) {
-            if (confirm('Are you sure?')) {
+            if (confirm("Are you sure?")) {
               let removedTask = self.taskList.splice(i, 1);
-              console.log('removedTask', removedTask);
             }
 
             break;
@@ -136,16 +128,30 @@
         }
 
         self._saveTaskList();
+      },
 
+      onResetTask(task) {
+        task.time = 0;
+        Counter.resetCount();
+        this._saveTaskList();
       },
 
       _saveTaskList: function () {
         Storage.taskList = this.taskList;
         Storage.currentTask = this.currentTask;
-        Storage.nextTaskId = nextTaskId;
-      },
+        Storage.lastTaskId = lastTaskId;
 
-    }
+        bpage.saveStorage();
+      }
+    },
+
+    computed: {
+      counterState: {
+        get: function () {
+          return (Counter.state) ? 'start' : 'pause';
+        }
+      }
+    },
   };
 </script>
 
