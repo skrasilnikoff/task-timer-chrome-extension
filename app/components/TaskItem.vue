@@ -12,7 +12,13 @@
       </button>
     </div>
     <input class="floatleft input-field task-name type-text" v-model="task.name" placeholder="Task name"/>
-    <div class="floatleft task-time">{{ counterTime }}</div>
+    <div class="floatleft task-time">
+      <input type="text"
+             v-model.trim="task.timeStr"
+             v-on:keypress="timeStrInputFilter(event)"
+             @change="changeTaskTimeStr(task)">
+    </div>
+
     <button type="button" class="btn remove floatright" @click="$emit('remove-task', task)">
       <i class="icon-cancel-1"></i>
     </button>
@@ -30,104 +36,108 @@
         state: "pause" // run, pause
       };
     },
-
-    computed: {
-      counterTime: {
-        get: function () {
-          let hms = this._secondsToHms(this.task.time);
-
-          for (let index in hms) {
-            if (hms[index] < 10) {
-              hms[index] = "0" + hms[index];
-            }
-          }
-
-          return hms.h + ":" + hms.m + ":" + hms.s;
-        }
-      }
-    },
-
     methods: {
-      _secondsToHms(d) {
-        return bpage.secondsToHms(d);
+      changeTaskTimeStr(task) {
+        if (task.timeStr !== undefined) {
+          let seconds = bpage.hmsToSeconds(task.timeStr);
+          if (seconds !== -1) {
+            task.time = seconds;
+          }
+        }
+      },
+      timeStrInputFilter(event) {
+        event = (event) ? event : window.event;
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46 && event.key !== ":") {
+          event.preventDefault();
+        } else {
+          return true;
+        }
+
       }
     }
   };
 </script>
 
-<style scoped>
+<style lang="scss">
   .task-item {
-    border-bottom: 1px solid #eee;
-    padding: 10px 10px 13px;
-  }
+    padding: 3px 10px;
 
-  .task-item.active {
-    background: #fffec9;
-  }
+    &.active {
+      background: #fffec9;
+    }
 
-  .task-item .task-name {
-    margin-left: 7px;
-    width: 366px;
-  }
+    .task-name {
+      margin-left: 7px;
+      width: 366px;
+    }
 
-  .task-item .btn {
-    border-radius: 50%;
-    color: #9c9c9c;
-    font-size: 13px;
-    height: 30px;
-    margin-right: 0;
-    margin-top: 8px;
-    position: relative;
-    transition: background 0.2s, color 0.3s linear;
-    text-align: center;
-    width: 30px;
-  }
+    .btn {
+      border-radius: 50%;
+      color: #9c9c9c;
+      font-size: 13px;
+      height: 30px;
+      margin-right: 0;
+      padding: 0;
+      position: relative;
+      transition: background 0.2s, color 0.3s linear;
+      text-align: center;
+      width: 30px;
 
-  .task-item .btn [class^="icon-"] {
-    left: 5px;
-    position: absolute;
-    top: 7px;
-  }
+      &:hover {
+        background: #f7f7f7;
+      }
 
-  .task-item .btn.start [class^="icon-"] {
-    left: 6px;
-  }
+      &:active {
+        background: #e4e4e4;
+      }
 
-  .task-item .btn:hover {
-    background: #f7f7f7;
-  }
+      &.start [class^="icon-"] {
+        left: 6px;
+      }
 
-  .task-item .btn:active {
-    background: #e4e4e4;
-  }
+      [class^="icon-"] {
+        left: 5px;
+        position: absolute;
+        top: 7px;
+      }
+    }
 
-  .task-item .task-time {
-    height: 40px;
-    line-height: 48px;
-  }
+    .task-time {
+      height: 30px;
+      line-height: 30px;
 
-  .task-item.active .start,
-  .task-item:hover .start {
-    color: #369c31;
-  }
+      input {
+        background: none;
+        border: none;
+        height: 30px;
+        width: 88px;
+      }
+    }
 
-  .task-item.active .pause,
-  .task-item:hover .pause {
-    color: #ffa84f;
-  }
+    &.active, &:hover {
 
-  .task-item .remove {
-    padding-right: 0;
-  }
+      .start {
+        color: #369c31;
+      }
 
-  .task-item.active .remove,
-  .task-item:hover .remove {
-    color: #e24444;
-  }
+      .pause {
+        color: #ffa84f;
+      }
 
-  .task-item.active .reset,
-  .task-item:hover .reset {
-    color: #606060;
-  }
+      .remove {
+        color: #e24444;
+      }
 
+      .reset {
+        color: #606060;
+      }
+
+    }
+
+    .remove {
+      padding-right: 0;
+    }
+
+  }
 </style>

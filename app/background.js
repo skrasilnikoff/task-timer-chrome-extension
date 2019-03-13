@@ -5,6 +5,8 @@ if (!appStatus) {
   getDataFromStorage('storage', function (result) {
     Storage = result.storage;
 
+
+
     if (Storage === undefined) {
       Storage = {
         taskList: [],
@@ -12,6 +14,17 @@ if (!appStatus) {
         currentTask: {id: 0},
         timer: null
       };
+    } else {
+
+      if (Storage.taskList !== undefined) {
+        Storage.taskList.forEach(function (task) {
+          if (task.timeStr === undefined) {
+            task.timeStr = beautifyHms(secondsToHms(task.time))
+          }
+
+        })
+      }
+
     }
   });
 }
@@ -24,7 +37,7 @@ var Counter = {
   startCount: function (callback) {
     let self = this;
 
-    updateBrowserAction();
+    updateBrowserAction('start');
     saveStorage();
 
     self.state = 1;
@@ -44,7 +57,7 @@ var Counter = {
     let self = this;
     self.state = 0;
     self.clearTimeout();
-    updateBrowserAction();
+    updateBrowserAction('pause');
   },
 
   resetCount: function () {
@@ -66,12 +79,20 @@ var Counter = {
   }
 };
 
-let greenColor = [76, 187, 23, 255];
+let statusColors = {
+  start: [76, 187, 23, 255],
+  pause: [214, 119, 21, 1]
+};
 
-function updateBrowserAction() {
+function updateBrowserAction(action) {
+  action = action || 'start';
   let time = secondsToHms(Counter.count);
-  chrome.browserAction.setBadgeBackgroundColor({color: greenColor});
-  chrome.browserAction.setBadgeText({text: time.h + ':' + time.m});
+  chrome.browserAction.setBadgeBackgroundColor({color: statusColors[action]});
+  if (action == 'pause') {
+    chrome.browserAction.setBadgeText({text: '❚❚'});
+  } else {
+    chrome.browserAction.setBadgeText({text: time.h + ':' + ((time.m < 10) ? '0' + time.m : time.m)});
+  }
 }
 
 function saveStorage() {
@@ -89,6 +110,33 @@ function secondsToHms(d) {
   let sDisplay = s > 0 ? s : "0";
 
   return {'h': hDisplay, 'm': mDisplay, 's': sDisplay};
+}
+
+function beautifyHms(hms) {
+  for (let index in hms) {
+    if (hms[index] < 10) {
+      hms[index] = "0" + hms[index];
+    }
+  }
+  return hms.h + ":" + hms.m + ":" + hms.s;
+}
+
+function hmsToSeconds(hms) {
+  let hmsArr = hms.split(':');
+
+  console.log('hmsArr', hmsArr);
+
+  if (hmsArr.length === 3) {
+    let h = Number(hmsArr[0] * 3600);
+    let m = Number(hmsArr[1] * 60);
+    let s = Number(hmsArr[2]);
+
+    return h + m + s;
+  }
+
+  return -1;
+
+
 }
 
 function saveDataToStorage(data, callback) {
