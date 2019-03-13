@@ -5,25 +5,28 @@
   "main": "popup.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch --progress",
     "build": "webpack -p"
   },
   "devDependencies": {
-    "babel-loader": "^7",
     "babel-core": "latest",
+    "babel-loader": "^7",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-runtime": "latest",
     "babel-preset-env": "latest",
     "browserify": "latest",
     "css-loader": "latest",
     "jquery": "^3.3.1",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
+    "node-sass": "^4.11.0",
+    "sass-loader": "^7.1.0",
     "vue-html-loader": "latest",
-    "vue-template-compiler": "latest",
     "vue-loader": "latest",
     "vue-style-loader": "latest",
+    "vue-template-compiler": "latest",
     "webpack": "latest",
     "webpack-cli": "latest",
-    "webpack-dev-server": "^3.1.4"
+    "webpack-dev-server": "^3.2.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",

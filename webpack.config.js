@@ -1,9 +1,10 @@
 const { VueLoaderPlugin } = require('vue-loader');
+
 module.exports = {
-  // mode: 'development',
+  mode: 'production',
   entry: './app/popup.js',
   output: {
-    path: __dirname + '/app',
+    path: __dirname + '/app/dist',
     filename: 'popup_build.js'
   },
   module: {
@@ -25,6 +26,14 @@ module.exports = {
         use: [
           'vue-style-loader',
           'css-loader'
+        ]
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
         ]
       }
     ]

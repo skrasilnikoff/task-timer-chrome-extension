@@ -7,15 +7,17 @@
 
     <div class="list">
       <div class="container">
-        <task-item v-for="task in taskList"
-                   v-bind:class="{ active : task.id == currentTask.id }"
-                   :task="task"
-                   :key="task.id"
-                   @start-task="onStartTask"
-                   @pause-task="onPauseTask"
-                   @remove-task="onRemoveTask"
-                   @reset-task="onResetTask"
-        />
+        <ul>
+          <task-item v-for="task in taskList"
+                     v-bind:class="{ active : task.id == currentTask.id }"
+                     :task="task"
+                     :key="task.id"
+                     @start-task="onStartTask"
+                     @pause-task="onPauseTask"
+                     @remove-task="onRemoveTask"
+                     @reset-task="onResetTask"
+          />
+        </ul>
       </div>
     </div>
 
@@ -60,7 +62,8 @@
         self.taskList.push({
           id: ++lastTaskId,
           name: taskName,
-          time: 0
+          time: 0,
+          timeStr: "00:00:00"
         });
         self._saveTaskList();
       },
@@ -92,6 +95,14 @@
 
         Counter.startCount(function () {
           task.time = _clone(Counter.getCount());
+          let hms = bpage.secondsToHms(task.time);
+
+          for (let index in hms) {
+            if (hms[index] < 10) {
+              hms[index] = "0" + hms[index];
+            }
+          }
+          task.timeStr = hms.h + ":" + hms.m + ":" + hms.s;
           self._saveTaskList();
         });
       },

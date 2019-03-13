@@ -29,26 +29,24 @@
   };
 </script>
 
-<style scoped>
+
+<style lang="scss">
 
   .create-new-task {
-    border-bottom: 1px solid #eee;
     padding: 5px 10px 9px;
-    background: #6878b1;
-  }
+    background: #dc4c35;
 
-  .create-new-task .input-field {
-    width: 100%;
-  }
+    .input-field {
+      border-bottom: 1px solid #ffc3c3;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      width: 100%;
 
-  .create-new-task .input-field {
-    color: #fff;
-    font-family: 'Roboto', sans-serif;
-  }
-
-  .create-new-task .input-field::placeholder {
-    color: #eee;
-    font-family: 'Roboto', sans-serif;
+      &::placeholder {
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+      }
+    }
   }
 
 </style>

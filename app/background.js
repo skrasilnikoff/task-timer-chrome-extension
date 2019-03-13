@@ -24,7 +24,7 @@ var Counter = {
   startCount: function (callback) {
     let self = this;
 
-    updateBrowserAction();
+    updateBrowserAction('start');
     saveStorage();
 
     self.state = 1;
@@ -44,7 +44,7 @@ var Counter = {
     let self = this;
     self.state = 0;
     self.clearTimeout();
-    updateBrowserAction();
+    updateBrowserAction('pause');
   },
 
   resetCount: function () {
@@ -66,12 +66,16 @@ var Counter = {
   }
 };
 
-let greenColor = [76, 187, 23, 255];
+let statusColors = {
+  start: [76, 187, 23, 255],
+  pause: [214, 119, 21, 1]
+};
 
-function updateBrowserAction() {
+function updateBrowserAction(action) {
+  action = action || 'start';
   let time = secondsToHms(Counter.count);
-  chrome.browserAction.setBadgeBackgroundColor({color: greenColor});
-  chrome.browserAction.setBadgeText({text: time.h + ':' + time.m});
+  chrome.browserAction.setBadgeBackgroundColor({color: statusColors[action]});
+  chrome.browserAction.setBadgeText({text: time.h + ':' + ((time.m < 10) ? '0' + time.m : time.m)});
 }
 
 function saveStorage() {
@@ -89,6 +93,24 @@ function secondsToHms(d) {
   let sDisplay = s > 0 ? s : "0";
 
   return {'h': hDisplay, 'm': mDisplay, 's': sDisplay};
+}
+
+function hmsToSeconds(hms) {
+  let hmsArr = hms.split(':');
+
+  console.log('hmsArr', hmsArr);
+
+  if (hmsArr.length === 3) {
+    let h = Number(hmsArr[0] * 3600);
+    let m = Number(hmsArr[1] * 60);
+    let s = Number(hmsArr[2]);
+
+    return h + m + s;
+  }
+
+  return -1;
+
+
 }
 
 function saveDataToStorage(data, callback) {
