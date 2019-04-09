@@ -124,8 +124,6 @@ function beautifyHms(hms) {
 function hmsToSeconds(hms) {
   let hmsArr = hms.split(':');
 
-  console.log('hmsArr', hmsArr);
-
   if (hmsArr.length === 3) {
     let h = Number(hmsArr[0] * 3600);
     let m = Number(hmsArr[1] * 60);
